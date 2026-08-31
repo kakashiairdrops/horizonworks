@@ -1,0 +1,8 @@
+{
+  "name": "horizon-agency-prototype",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js"
+  }
+}

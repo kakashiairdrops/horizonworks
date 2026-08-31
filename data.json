@@ -1,0 +1,18 @@
+{
+  "applications": [],
+  "briefs": [
+    {
+      "id": "bri_1788187769294",
+      "createdAt": "2026-08-31T14:49:29.295Z",
+      "source": "brief",
+      "values": {
+        "budget": "2000",
+        "start": "This week",
+        "details": "",
+        "currency": "USDC · Base"
+      }
+    }
+  ],
+  "payments": [],
+  "projects": []
+}
