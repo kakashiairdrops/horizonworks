@@ -13,6 +13,22 @@
       }
     }
   ],
-  "payments": [],
+  "payments": [
+    {
+      "id": "pay_1788188976716",
+      "created_at": "2026-08-31T15:09:36.716Z",
+      "source": "workspace",
+      "values": {
+        "status": "pending_confirmation",
+        "amount": "1700",
+        "asset": "USDC",
+        "network": "Base"
+      },
+      "status": "pending_confirmation",
+      "amount": "1700",
+      "asset": "USDC",
+      "network": "Base"
+    }
+  ],
   "projects": []
 }
