@@ -4,3 +4,11 @@ node_modules/
 .env.*.local
 .vercel/
 .DS_Store
+
+# Local SQLite database — rebuild any time with `npm run seed:reset`
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Screenshot output from `npm run screenshots`
+shots/

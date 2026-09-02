@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horizon — Talent directory</title>
+  <meta name="description" content="Browse vetted independent specialists in web and app development, AI automation, creative production, and Web3.">
+  <link rel="icon" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body>
+  <a class="skip-link" href="#results">Skip to results</a>
+  <main class="page">
+    <div class="page-nav">
+      <a class="brand" href="/"><i aria-hidden="true"></i>horizon</a>
+      <nav style="display:flex;gap:10px;align-items:center">
+        <a class="btn sm ghost" href="/">← Home</a>
+        <a class="btn sm primary" href="/login.html" id="nav-cta">Sign in</a>
+      </nav>
+    </div>
+    <h1>The people behind <em>good work.</em></h1>
+    <p class="lede">Every specialist here has been reviewed by an operator before appearing. Filter by skill, availability, rate, and how they prefer to be paid — then create an account to invite them to a brief.</p>
+    <div id="results"><div class="skeleton" style="min-height:220px"></div></div>
+  </main>
+  <script type="module" src="/assets/js/directory.js"></script>
+</body>
+</html>

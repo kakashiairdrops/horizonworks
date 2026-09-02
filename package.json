@@ -1,8 +1,20 @@
 {
-  "name": "horizon-agency-prototype",
+  "name": "horizon-marketplace",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Horizon — a talent marketplace with explainable matching and milestone escrow. Zero runtime dependencies.",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "test": "node --test --test-timeout=300000 test/",
+    "test:server": "node --test test/unit.test.js test/auth.test.js test/api.test.js test/escrow.test.js",
+    "test:browser": "node --test --test-timeout=300000 test/browser.test.js",
+    "test:watch": "node --test --watch test/",
+    "seed:reset": "node scripts/reset-db.js",
+    "screenshots": "node scripts/screenshots.js",
+    "check": "node --check server.js && node scripts/check-syntax.js"
   }
 }

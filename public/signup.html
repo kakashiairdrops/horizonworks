@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horizon — Create an account</title>
+  <meta name="description" content="Create a Horizon account as a client or an independent specialist.">
+  <link rel="icon" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body>
+  <a class="skip-link" href="#form">Skip to sign-up form</a>
+  <div class="auth-wrap">
+    <section class="auth-side">
+      <a class="brand" href="/"><i aria-hidden="true"></i>horizon</a>
+      <h1>Join a network built on <em>good work.</em></h1>
+      <p class="lede">Two minutes to create an account. Clients can post a brief immediately; specialists build a profile that gets reviewed by an operator.</p>
+      <ul class="points">
+        <li>Clients: ranked shortlists with the reasoning shown</li>
+        <li>Talent: only briefs that match your skills and rate</li>
+        <li>Both: milestone escrow before work begins</li>
+      </ul>
+      <div class="demo-card">
+        <h2>Prefer to look around first?</h2>
+        <p style="margin:0;color:var(--muted)">Browse the <a href="/talent-directory.html" style="color:var(--lime)">public talent directory</a>, or sign in with a demo account from the <a href="/login.html" style="color:var(--lime)">sign-in page</a>.</p>
+      </div>
+    </section>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <h2>Create your account</h2>
+        <p class="sub">Choose how you want to use Horizon. You can only have one role per account.</p>
+        <div class="alert error" id="form-error" hidden></div>
+        <form id="form" novalidate>
+          <div class="role-cards" role="group" aria-label="Account type">
+            <button class="role-card" type="button" data-role="client" aria-pressed="true">
+              <strong>I'm hiring</strong><span>Post briefs, review matches, fund milestones.</span>
+            </button>
+            <button class="role-card" type="button" data-role="talent" aria-pressed="false">
+              <strong>I'm available</strong><span>Build a profile, receive invitations, get paid.</span>
+            </button>
+          </div>
+          <input type="hidden" name="role" value="client">
+
+          <label class="field"><span>Your name</span>
+            <input name="name" required autocomplete="name" minlength="2" maxlength="80" placeholder="Alex Morgan">
+          </label>
+          <label class="field" id="company-field"><span>Company or studio</span>
+            <input name="company" autocomplete="organization" maxlength="120" placeholder="Northstar Studio">
+          </label>
+          <label class="field"><span>Email address</span>
+            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+          </label>
+          <label class="field"><span>Password</span>
+            <input name="password" type="password" required autocomplete="new-password" minlength="10" placeholder="At least 10 characters">
+            <span class="strength" id="strength" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="field-hint" id="strength-label">Use at least 10 characters. A passphrase works well.</span>
+          </label>
+          <button class="btn primary block" type="submit">Create account →</button>
+        </form>
+        <p class="swap">Already have an account? <a href="/login.html">Sign in</a></p>
+        <p class="swap"><a href="/" style="color:var(--muted)">← Back to the site</a></p>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/assets/js/signup.js"></script>
+</body>
+</html>
