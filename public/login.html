@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Horizon — Sign in</title>
+  <meta name="description" content="Sign in to your Horizon workspace.">
+  <link rel="icon" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body>
+  <a class="skip-link" href="#form">Skip to sign-in form</a>
+  <div class="auth-wrap">
+    <section class="auth-side">
+      <a class="brand" href="/"><i aria-hidden="true"></i>horizon</a>
+      <h1>Welcome back to <em>the network.</em></h1>
+      <p class="lede">Pick up your briefs, project rooms, and escrow exactly where you left them.</p>
+      <ul class="points">
+        <li>Explainable shortlists, not proposal spam</li>
+        <li>Milestone escrow with a clear refund path</li>
+        <li>Settlement in the assets your team uses</li>
+      </ul>
+      <div class="demo-card">
+        <h2>Demo accounts</h2>
+        <table>
+          <tbody>
+            <tr><td>Client</td><td><code>alex@northstar.test</code></td><td><button type="button" data-fill="alex@northstar.test">Use</button></td></tr>
+            <tr><td>Talent</td><td><code>maya@horizon.test</code></td><td><button type="button" data-fill="maya@horizon.test">Use</button></td></tr>
+            <tr><td>Admin</td><td><code>admin@horizon.test</code></td><td><button type="button" data-fill="admin@horizon.test">Use</button></td></tr>
+          </tbody>
+        </table>
+        <p style="margin:9px 0 0;color:var(--muted-dim)">Password for all three: <code>horizon-demo-2025</code></p>
+      </div>
+    </section>
+
+    <main class="auth-main">
+      <div class="auth-card">
+        <h2>Sign in</h2>
+        <p class="sub">Enter your Horizon credentials to continue.</p>
+        <div class="alert error" id="form-error" hidden></div>
+        <div class="alert info" id="form-info" hidden></div>
+        <form id="form" novalidate>
+          <label class="field"><span>Email address</span>
+            <input name="email" type="email" required autocomplete="email" autofocus placeholder="you@company.com">
+          </label>
+          <label class="field"><span>Password</span>
+            <input name="password" type="password" required autocomplete="current-password" placeholder="••••••••••">
+          </label>
+          <button class="btn primary block" type="submit">Sign in →</button>
+        </form>
+        <p class="swap">New to Horizon? <a href="/signup.html">Create an account</a></p>
+        <p class="swap"><a href="/" style="color:var(--muted)">← Back to the site</a></p>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/assets/js/login.js"></script>
+</body>
+</html>
