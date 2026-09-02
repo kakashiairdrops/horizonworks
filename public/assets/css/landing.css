@@ -31,6 +31,12 @@ body.marketing::before {
 .site-nav .links { display: flex; align-items: center; gap: 26px; }
 .site-nav .links a { color: #c5c7c0; font-size: 13px; font-weight: 600; text-decoration: none; }
 .site-nav .links a:hover { color: var(--lime); }
+/* The plain-link colour above is more specific than `.btn.primary`, so without
+   this the CTA renders pale grey on lime (1.5:1) instead of ink on lime. */
+.site-nav .links a.btn { font-size: 13px; }
+.site-nav .links a.btn.primary,
+.site-nav .links a.btn.primary:hover { color: var(--ink); }
+.site-nav .links a.btn:not(.primary) { color: var(--paper); }
 
 .hero { max-width: 1320px; margin: auto; padding: 70px 42px 56px; position: relative; z-index: 1; }
 .hero h1 { max-width: 940px; font-size: clamp(48px, 7.2vw, 100px); line-height: .97; letter-spacing: -5px; margin: 26px 0 24px; }

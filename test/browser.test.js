@@ -151,6 +151,53 @@ describe('browser smoke tests', { skip: chromePath ? false : 'no Chrome/Chromium
       assert.match(heading, /moved on/i);
     });
 
+    /**
+     * `.site-nav .links a` sets a pale grey for the plain nav links, and it is
+     * more specific than `.btn.primary`. Without an explicit override the CTA
+     * paints grey-on-lime at 1.5:1 — legible only if you already know what it
+     * says. WCAG AA wants 4.5:1 for body-size text.
+     */
+    it('the header call to action is readable in both signed-out and signed-in states', async () => {
+      const contrast = (foreground, background) => {
+        const channel = (value) => {
+          const v = value / 255;
+          return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+        };
+        const luminance = ([r, g, b]) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+        const [light, dark] = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+        return (light + 0.05) / (dark + 0.05);
+      };
+      const rgb = (value) => value.match(/\d+/g).slice(0, 3).map(Number);
+
+      const readCta = async () => page.eval(`
+        const cta = document.querySelector('#nav-cta');
+        if (!cta) return null;
+        const styles = getComputedStyle(cta);
+        return { text: cta.textContent.trim(), color: styles.color, background: styles.backgroundColor };
+      `);
+
+      const PAGES = ['/', '/talent-directory.html', '/talent-profile.html'];
+
+      await signOutInBrowser();
+      for (const path of PAGES) {
+        await visit(path, { waitFor: '!!document.querySelector("#nav-cta")', allowStatusErrors: true });
+        const cta = await readCta();
+        assert.equal(cta.text, 'Sign in', `${path}: signed out the CTA should invite sign-in`);
+        assert.ok(contrast(rgb(cta.color), rgb(cta.background)) >= 4.5,
+          `${path}: "${cta.text}" only reaches ${contrast(rgb(cta.color), rgb(cta.background)).toFixed(2)}:1`);
+      }
+
+      await signIn(CLIENT_EMAIL);
+      for (const path of PAGES) {
+        await visit(path, { waitFor: `document.querySelector('#nav-cta').textContent.includes('workspace')`, allowStatusErrors: true });
+        const cta = await readCta();
+        assert.match(cta.text, /Open workspace/, `${path}: signed in the CTA should point at the workspace`);
+        assert.ok(contrast(rgb(cta.color), rgb(cta.background)) >= 4.5,
+          `${path}: "${cta.text}" only reaches ${contrast(rgb(cta.color), rgb(cta.background)).toFixed(2)}:1`);
+      }
+      await signOutInBrowser();
+    });
+
     it('signed-out workspace pages redirect to the login screen', async () => {
       page.clearErrors();
       await page.goto(`${server.baseUrl}/app/dashboard.html`);
@@ -768,6 +815,123 @@ describe('browser smoke tests', { skip: chromePath ? false : 'no Chrome/Chromium
         return [...document.querySelectorAll('.bubble p')].some((node) => node.textContent.trim() === 'Here is the file.');
       `);
       assert.equal(posted, false, 'a rejected message stays out of the thread');
+    });
+  });
+
+  describe('the workspace shell layout', () => {
+    before(async () => { await signOutInBrowser(); await signIn(CLIENT_EMAIL); });
+
+    after(async () => {
+      // Leave the viewport as the other suites expect it.
+      await page.call('Emulation.clearDeviceMetricsOverride', {});
+    });
+
+    /**
+     * The sidebar has to be mounted INSIDE `.shell`, whose grid is `246px 1fr`.
+     * Mounted anywhere else the grid keeps a single child: the workspace
+     * collapses into the 246px column and drops a full viewport below the
+     * sidebar, so every page looks blank even though it rendered fine.
+     */
+    it('lays the nav beside the content, not above it', async () => {
+      await page.call('Emulation.setDeviceMetricsOverride', {
+        width: 1440, height: 900, deviceScaleFactor: 1, mobile: false
+      });
+
+      for (const path of ['/app/dashboard.html', '/app/briefs.html', '/app/talent.html',
+        '/app/projects.html', '/app/payments.html', '/app/settings.html']) {
+        await visit(path, { waitFor: '!!document.querySelector(".sidebar") && !!document.querySelector(".workspace h1")' });
+
+        const box = await page.eval(`
+          const sidebar = document.querySelector('.sidebar');
+          const workspace = document.querySelector('.workspace');
+          const rect = (node) => {
+            const b = node.getBoundingClientRect();
+            return { x: Math.round(b.x), y: Math.round(b.y), width: Math.round(b.width) };
+          };
+          return {
+            insideShell: sidebar.parentElement.classList.contains('shell'),
+            sidebar: rect(sidebar),
+            workspace: rect(workspace),
+            heading: document.querySelector('.workspace h1').textContent.trim()
+          };
+        `);
+
+        assert.equal(box.insideShell, true, `${path}: the sidebar must mount inside .shell`);
+        assert.ok(box.sidebar.width < 400,
+          `${path}: the sidebar must stay a column, got ${box.sidebar.width}px wide`);
+        assert.ok(box.workspace.x >= box.sidebar.width - 1,
+          `${path}: content must sit beside the nav, not under it (x=${box.workspace.x})`);
+        assert.equal(box.workspace.y, 0,
+          `${path}: content must start at the top, not ${box.workspace.y}px down`);
+        assert.ok(box.workspace.width > 700,
+          `${path}: content must get the wide column, got ${box.workspace.width}px`);
+        assert.ok(box.heading.length > 0, `${path}: the page must render a heading`);
+      }
+    });
+
+    /**
+     * The sidebar is pinned to the viewport. On a short window its links have to
+     * scroll inside their own region, or the account block and Sign out get
+     * pushed off the bottom with no way to reach them — and the page reads as
+     * though the nav is covering the content.
+     */
+    const VIEWPORTS = [[1440, 900], [1440, 520], [1280, 400]];
+
+    for (const [width, height] of VIEWPORTS) {
+      it(`keeps the nav pinned and the account block reachable at ${width}x${height}`, async () => {
+        await page.call('Emulation.setDeviceMetricsOverride', {
+          width, height, deviceScaleFactor: 1, mobile: false
+        });
+        await visit('/app/talent.html', { waitFor: 'document.querySelectorAll(".person").length > 0' });
+
+        const layout = await page.eval(`
+          const sidebar = document.querySelector('.sidebar');
+          const nav = sidebar.querySelector('.nav-scroll');
+          const foot = sidebar.querySelector('.sidebar-foot');
+          const signOut = [...sidebar.querySelectorAll('button')].find((n) => /sign out/i.test(n.textContent));
+          const onScreen = (node) => {
+            const rect = node.getBoundingClientRect();
+            return rect.bottom <= innerHeight + 1 && rect.top >= -1;
+          };
+          const startY = window.scrollY;
+          window.scrollTo(0, 900);
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          return {
+            sidebarHeight: Math.round(sidebar.getBoundingClientRect().height),
+            viewportHeight: innerHeight,
+            navHasOwnScroll: nav.scrollHeight > nav.clientHeight + 1,
+            footOnScreen: onScreen(foot),
+            signOutOnScreen: signOut ? onScreen(signOut) : false,
+            contentScrolled: window.scrollY > startY,
+            sidebarPinned: Math.round(sidebar.getBoundingClientRect().top) === 0
+          };
+        `);
+
+        assert.ok(layout.sidebarHeight <= layout.viewportHeight + 1,
+          `the sidebar must not exceed the viewport: ${layout.sidebarHeight} > ${layout.viewportHeight}`);
+        assert.equal(layout.footOnScreen, true, 'the account block must stay on screen');
+        assert.equal(layout.signOutOnScreen, true, 'sign out must stay reachable');
+        assert.equal(layout.contentScrolled, true, 'the page content must still scroll');
+        assert.equal(layout.sidebarPinned, true, 'the sidebar stays pinned while content scrolls');
+        assert.deepEqual(page.hardErrors(), []);
+      });
+    }
+
+    it('scrolls the links themselves when the window is too short for them', async () => {
+      await page.call('Emulation.setDeviceMetricsOverride', {
+        width: 1280, height: 380, deviceScaleFactor: 1, mobile: false
+      });
+      await visit('/app/dashboard.html', { waitFor: 'document.querySelectorAll(".stat").length > 0' });
+
+      const nav = await page.eval(`
+        const region = document.querySelector('.sidebar .nav-scroll');
+        const before = region.scrollTop;
+        region.scrollTop = 999;
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        return { overflows: region.scrollHeight > region.clientHeight + 1, before, after: region.scrollTop };
+      `);
+      assert.equal(nav.overflows, true, 'at 380px tall the link list should overflow');
+      assert.ok(nav.after > nav.before, 'the link list must be scrollable, not clipped');
     });
   });
 

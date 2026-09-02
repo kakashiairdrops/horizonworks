@@ -23,7 +23,7 @@ step — there are no dependencies.
 ```bash
 npm start          # http://127.0.0.1:3000
 npm run dev        # same, with --watch restarts
-npm test           # 209 tests: server suites + real-browser smoke tests
+npm test           # 215 tests: server suites + real-browser smoke tests
 npm run test:server    # 171 unit + HTTP integration tests (fast, no browser)
 npm run test:browser   # 30 headless-Chrome tests through the real UI
 npm run check      # syntax-check server files and every browser module
@@ -197,7 +197,7 @@ end paints those straight onto the matching inputs.
 
 ### Testing
 
-209 tests, no test framework and no browser driver installed:
+215 tests, no test framework and no browser driver installed:
 
 - **177 server tests** (`test/unit.test.js`, `auth`, `api`, `escrow`) run against an
   in-memory SQLite database on an ephemeral port. They cover validation, password
@@ -207,7 +207,7 @@ end paints those straight onto the matching inputs.
   money that actually moved), the rate limiter's persistence across a fresh limiter
   instance, and both schema migrations — the CHECK constraint widened by rebuilding a
   table, and the column added and backfilled in place.
-- **32 browser tests** (`test/browser.test.js`) drive real headless Chrome over the
+- **38 browser tests** (`test/browser.test.js`) drive real headless Chrome over the
   DevTools Protocol: they sign in as each role, post a brief through its dialog,
   assert the shortlist ranks and explains itself, fund a milestone and check the
   wallet moved, edit and save a profile, approve a pending specialist from the admin
@@ -215,8 +215,12 @@ end paints those straight onto the matching inputs.
   refund disappear, the dashboard warns about frozen escrow, an admin splits it from
   the console, the ledger shows only the arbitrated share as settled), post a link
   attachment and check it renders safely, watch a locked-out login paint the server's
-  retry message, and confirm no page logs a console error. They skip themselves when no
-  Chrome binary is present, so `npm test` stays green without one.
+  retry message, and confirm no page logs a console error. They also assert layout and
+  legibility rather than only content: the sidebar mounts inside the shell grid and the
+  workspace sits beside it at full width, a short window scrolls the nav's links instead
+  of clipping Sign out, and the header CTA clears 4.5:1 contrast in both its signed-out
+  and signed-in states. They skip themselves when no Chrome binary is present, so
+  `npm test` stays green without one.
 
 `scripts/lib/cdp.js` is a small DevTools Protocol client, and
 `scripts/lib/websocket.js` is a minimal RFC 6455 client it sits on. Node's global
@@ -273,7 +277,7 @@ authorisation. Added here: SQLite persistence across 19 tables, authentication w
 three roles, a REST API, the approval gate, search, the matching engine, invitations,
 project rooms with messaging and link attachments, milestone escrow with a fee model,
 a dispute and arbitration flow, reviews that feed matching, the admin console with an
-audit trail, 209 automated tests, and a rewritten front end. The Supabase path was
+audit trail, 215 automated tests, and a rewritten front end. The Supabase path was
 removed — the app is self-contained.
 
 ## What is worth building next

@@ -38,24 +38,30 @@ export async function mountShell({ title, crumb, actions = [] } = {}) {
   const user = session.user;
 
   const sidebar = el('aside', { class: 'sidebar', id: 'sidebar' });
-  sidebar.append(
-    el('a', { class: 'brand', href: '/' }, [el('i', {}), 'horizon']),
-    el('div', { class: 'nav-label', text: user.role === 'admin' ? 'Control room' : 'Workspace' })
-  );
+  sidebar.append(el('a', { class: 'brand', href: '/' }, [el('i', {}), 'horizon']));
+
+  // The links live in their own scroll region so that a short window shortens
+  // the list rather than pushing the account block and sign-out off the bottom.
+  const links = el('nav', { class: 'nav-scroll', 'aria-label': 'Workspace' });
+  links.append(el('div', { class: 'nav-label', text: user.role === 'admin' ? 'Control room' : 'Workspace' }));
 
   const counts = await loadCounts(user.role);
   for (const [href, label, countKey] of NAV[user.role] || NAV.client) {
     const isCurrent = location.pathname === href;
     const count = countKey ? counts[countKey] : 0;
-    sidebar.append(el('a', {
+    links.append(el('a', {
       class: 'nav-item', href, ...(isCurrent ? { 'aria-current': 'page' } : {})
     }, [label, count ? el('span', { class: 'count', text: String(count) }) : null]));
   }
 
-  sidebar.append(
+  links.append(
     el('div', { class: 'nav-label', text: 'Account' }),
     el('a', { class: 'nav-item', href: '/app/settings.html' }, ['Settings']),
-    el('a', { class: 'nav-item', href: '/' }, ['Public site ↗']),
+    el('a', { class: 'nav-item', href: '/' }, ['Public site ↗'])
+  );
+  sidebar.append(links);
+
+  sidebar.append(
     el('div', { class: 'sidebar-foot' }, [
       el('span', { text: user.role === 'talent' ? 'Specialist' : user.role === 'admin' ? 'Operator' : 'Client workspace' }),
       el('strong', { text: user.company || user.name }),
@@ -87,7 +93,13 @@ export async function mountShell({ title, crumb, actions = [] } = {}) {
     const heading = el('h1', { text: title });
     top.after(heading);
   }
-  document.body.prepend(sidebar);
+  // The sidebar must be the FIRST CHILD OF .shell: that grid declares
+  // `246px 1fr`, so the nav fills column one and the workspace fills column
+  // two. Appending it to <body> instead leaves the grid with a single child,
+  // which squeezes the workspace into the 246px column and pushes it a full
+  // viewport height down the page.
+  const shell = document.querySelector('.shell') || document.body;
+  shell.prepend(sidebar);
   document.title = `Horizon — ${title || 'Workspace'}`;
   return session;
 }

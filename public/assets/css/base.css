@@ -318,8 +318,28 @@ dialog.modal .modal-foot { display: flex; justify-content: flex-end; gap: 9px; p
   gap: 4px;
   position: sticky;
   top: 0;
+  /* Pin to the viewport, but never taller than it: the links scroll inside. */
   height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+/* Only the link list scrolls, so the account block below stays reachable
+   on a short window instead of being pushed out of view. */
+.sidebar .nav-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Room for the custom scrollbar so it cannot overlap the labels. */
+  margin-right: -6px;
+  padding-right: 6px;
+}
+.sidebar .nav-scroll::-webkit-scrollbar { width: 6px; }
+.sidebar .nav-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14); border-radius: 100px;
 }
 .sidebar .brand { display: flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 800; letter-spacing: -0.9px; text-decoration: none; margin-bottom: 20px; }
 .sidebar .brand i { width: 19px; height: 19px; border: 2px solid var(--lime); transform: rotate(45deg); display: inline-block; }
@@ -337,7 +357,7 @@ dialog.modal .modal-foot { display: flex; justify-content: flex-end; gap: 9px; p
 .sidebar a.nav-item:hover { background: rgba(255, 255, 255, 0.055); color: var(--paper); }
 .sidebar a.nav-item[aria-current='page'] { background: rgba(217, 255, 95, 0.14); color: var(--lime); }
 .sidebar a.nav-item .count { font: 700 10px var(--mono); background: var(--lime); color: var(--ink); border-radius: 100px; padding: 2px 7px; }
-.sidebar .sidebar-foot { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
+.sidebar .sidebar-foot { flex: 0 0 auto; margin-top: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
 .sidebar .sidebar-foot strong { display: block; font-size: 13.5px; letter-spacing: -0.4px; }
 .sidebar .sidebar-foot span { font: 9.5px var(--mono); color: var(--muted-dim); text-transform: uppercase; letter-spacing: 1px; }
 

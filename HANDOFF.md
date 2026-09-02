@@ -1,6 +1,6 @@
 # Where this left off
 
-State: the app runs end to end and all 209 tests pass — 177 server tests plus 32
+State: the app runs end to end and all 215 tests pass — 177 server tests plus 38
 real-browser smoke tests. Nothing is committed yet; work sits on branch
 `feat/full-stack-platform` as uncommitted changes.
 
@@ -8,9 +8,9 @@ real-browser smoke tests. Nothing is committed yet; work sits on branch
 
 ```bash
 npm start              # http://127.0.0.1:3000
-npm test               # 209 pass (server + headless Chrome)
+npm test               # 215 pass (server + headless Chrome)
 npm run test:server    # 177 pass, no browser needed
-npm run test:browser   # 32 pass, drives real Chrome
+npm run test:browser   # 38 pass, drives real Chrome
 npm run check          # syntax-check server + browser modules
 npm run seed:reset     # rebuild data/horizon.db from scratch
 npm run screenshots -- shots http://127.0.0.1:3000
@@ -118,8 +118,26 @@ of migration, both idempotent:
    `status = 'released'`, so a split payment vanished from the specialist's "earned"
    total and from the public settlement figure even though the money had moved. Fixed by
    recording `settled_amount` per payment and summing that over `('released','split')`.
+7. `mountShell()` mounted the sidebar with `document.body.prepend()` instead of into
+   `.shell`. That grid is `246px 1fr` and so needs two children: with one, the nav
+   stretched to the full viewport (1440x900) and the workspace collapsed into the
+   246px column starting a whole viewport height down the page. Every workspace page
+   rendered correctly and was simply off-screen, which read as "clicking the nav does
+   nothing". Reported by the user; found by measuring `getBoundingClientRect()` rather
+   than trusting the page's text content, which had looked fine all along.
+8. The sidebar was `height: 100vh` with `overflow-y: auto` on the whole column, so a
+   window shorter than its 593px of content clipped the account block and Sign out
+   with no way to scroll to them. The links now sit in their own `.nav-scroll` region
+   and the account block stays anchored.
+9. `.site-nav .links a` (pale grey) outranks `.btn.primary` (ink), so the header CTA
+   painted grey-on-lime at 1.50:1 — far below the 4.5:1 WCAG AA floor. Both labels it
+   carries, "Sign in" and "Open workspace ↗", were affected. Now 16.61:1.
 
-All have regression tests.
+All have regression tests. Bugs 7-9 were all reported by a human looking at the
+screen: the browser suite asserted that content *existed*, never where it landed or
+whether it could be read. The layout and contrast tests added alongside these fixes
+assert geometry and computed colour, which is the class of bug that text assertions
+structurally cannot catch.
 
 ## Notes on the browser harness
 
